@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+    Web:
+        image: laravel:nginx-mainline
+        container_name: nginx
+        ports:
+            - "8800:80"
+        volumes:
+            - ./Docker/nginx/conf_dev:/etc/nginx/conf
+            - ./Docker/nginx/nginx.conf:/etc/nginx/nginx/conf
+            - ./src:/var/www/app
+        networks:
+            - backend
+
+    php:
+        image: laravel:php-8.3
+        container_name: PHP
+        volumes:
+            - ./Docker/php/ini_dev/php.ini:/usr/local/etc/php/php.ini
+            - ./src:/var/www/app
+        networks:
+            - backend
+
+    db:
+        image: laravel:mysql-8.2
+        container_name: db
+        ports:
+            - "3356:3306"
+        volumes:
+            - db-data:/var/lib/mysql
+        networks:
+            - backend
+
+    pma:
+        image: laravel:pma-5.2.1
+        container_name: phpMyAdmin
+        ports:
+            - "8801:80"
+        environment:
+            - PMA_HOST=db
+            - PMA_USER=root
+        networks:
+            - backend
+
+
+networks:
+    backend:
+        driver: local
+
+
+volumes:
+    db-data:
+        driver: local
